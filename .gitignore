@@ -1,0 +1,20 @@
+
+# Compiled binaries
+*.exe
+*.o
+*.obj
+
+# Build output
+build/
+dist/
+.dist/
+
+# VS Code temporary files
+.vscode/ipch/
+
+# Generated simulation data
+orbit.csv
+
+# Operating system files
+.DS_Store
+Thumbs.db
