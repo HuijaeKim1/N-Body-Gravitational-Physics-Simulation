@@ -3,13 +3,15 @@
 #include <fstream>
 #include <vector>
 #include "Simulation.hpp"
+#include "Renderer2D.hpp"
 
 using namespace std;
 
 int main() {
 
-    // Create the solar system simulation
     Simulation solarSystem;
+
+    Renderer2D renderer;
 
     // Create the Sun
     CelestialBody sun("Sun", 1.989e30, Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 0.0));
@@ -77,6 +79,8 @@ int main() {
     cout << "Z: " << finalPosition.getZ() << " m" << endl;
 
     cout << "Orbital data saved to orbit.csv" << endl;
+
+    renderer.run();
 
     return 0;
 }
