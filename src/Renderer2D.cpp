@@ -4,10 +4,10 @@
 Renderer2D::Renderer2D()
     : window(sf::VideoMode({1000, 800}), "Solar System Simulator") {
 
-    // Limit rendering to 60 frames per second
     window.setFramerateLimit(60);
 
-    // Set planet colors
+    window.setKeyRepeatEnabled(false);
+
     sun.setFillColor(sf::Color::Yellow);
     earth.setFillColor(sf::Color::Blue);
 
@@ -35,8 +35,10 @@ sf::Vector2f Renderer2D::worldToScreen(const Vector3& position) const {
 
 double dt = 21600.0;
 
-// Main graphical application loop
+
 void Renderer2D::run(Simulation& simulation) {
+
+    bool paused = false;
 
     // Access the celestial bodies stored in the simulation
     const std::vector<CelestialBody>& bodies = simulation.getBodies();
@@ -51,9 +53,21 @@ void Renderer2D::run(Simulation& simulation) {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
+
+            // Detect space key and toggle paused
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()){
+                if (keyPressed->code == sf::Keyboard::Key::Space){
+                    paused = !paused;
+                }
+            }
         }
 
-        simulation.step(dt);
+        // Update physics if its not paused
+        if (!paused){
+            simulation.step(dt);
+        }
+
+        sf::VertexArray trail(sf::PrimitiveType::LineStrip);
 
         // Get Sun and Earth positions from the physics engine
         const Vector3& sunPosition = bodies[0].getPosition();
@@ -63,6 +77,19 @@ void Renderer2D::run(Simulation& simulation) {
         sf::Vector2f sunScreen = worldToScreen(sunPosition);
         sf::Vector2f earthScreen = worldToScreen(earthPosition);
 
+        // Store Earth's current position
+        earthTrail.push_back(earthScreen);
+        
+        if (earthTrail.size() > 2000) {
+            earthTrail.erase(earthTrail.begin());
+        }
+
+        // Create vertexes and connect them to create the orbital route
+        for (const sf::Vector2f& point : earthTrail){
+            sf::Vertex vertex(point, sf::Color::Blue);
+            trail.append(vertex);
+        }
+
         // Update the visual positions
         sun.setPosition(sunScreen);
         earth.setPosition(earthScreen);
@@ -70,11 +97,12 @@ void Renderer2D::run(Simulation& simulation) {
         // Clear the previous frame
         window.clear(sf::Color::Black);
 
+        window.draw(trail);
+
         // Draw the celestial bodies
         window.draw(sun);
         window.draw(earth);
-
-        // Display the finished frame
+        
         window.display();
     }
 }

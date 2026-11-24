@@ -15,6 +15,9 @@ private:
     // Convert physical coordinates (meters) to screen coordinates (pixels)
     sf::Vector2f worldToScreen(const Vector3& position) const;
 
+    // For orbital trails
+    std::vector<sf::Vector2f> earthTrail;
+
 public:
     Renderer2D();
 
