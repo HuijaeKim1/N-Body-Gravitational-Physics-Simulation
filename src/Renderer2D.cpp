@@ -22,28 +22,29 @@ sf::Vector2f Renderer2D::worldToScreen(const Vector3& position) const {
     // Earth-Sun distance corresponds to 250 pixels
     double scaleFactor = 250.0 / 1.496e11;
 
-    // Convert world position to screen position
+    // Convert to screen position
     double screenX = 500.0 + position.getX() * scaleFactor;
     double screenY = 400.0 - position.getY() * scaleFactor;
 
-    // SFML uses floats for drawing coordinates
     float x = static_cast<float>(screenX);
     float y = static_cast<float>(screenY);
 
     return sf::Vector2f(x, y);
 }
 
-double dt = 21600.0;
+
 
 
 void Renderer2D::run(Simulation& simulation) {
 
     bool paused = false;
+    double dt = 21600.0;
+    double speedMultiplier = 1.0;
 
     // Access the celestial bodies stored in the simulation
     const std::vector<CelestialBody>& bodies = simulation.getBodies();
 
-    // Main rendering loop
+
     while (window.isOpen()) {
 
         // Process window events
@@ -54,17 +55,34 @@ void Renderer2D::run(Simulation& simulation) {
                 window.close();
             }
 
-            // Detect space key and toggle paused
-            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()){
-                if (keyPressed->code == sf::Keyboard::Key::Space){
+            // Handle keyboard input
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+
+                // Space: Pause or resume
+                if (keyPressed->code == sf::Keyboard::Key::Space) {
                     paused = !paused;
                 }
-            }
+
+                // Up: Double simulation speed
+                else if (keyPressed->code == sf::Keyboard::Key::Up) {
+                    if (speedMultiplier < 8.0) {
+                        speedMultiplier *= 2.0;
+                    }
+                }
+
+                // Down: Halve simulation speed
+                else if (keyPressed->code == sf::Keyboard::Key::Down) {
+                    if (speedMultiplier > 0.25) {
+                        speedMultiplier /= 2.0;
+                    }
+                }
+            }    
         }
 
         // Update physics if its not paused
         if (!paused){
-            simulation.step(dt);
+            double adjustedDt = dt * speedMultiplier;
+            simulation.step(adjustedDt);
         }
 
         sf::VertexArray trail(sf::PrimitiveType::LineStrip);
