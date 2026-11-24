@@ -24,9 +24,10 @@ int main() {
     solarSystem.addBody(earth);
 
     // Simulation settings
-    const double dt = 3600.0;     // 1 hour per time step
+    const double dt = 21600.0;     // 6 hour per time step
     const int totalSteps = 8760;  // 365 days
 
+    
     // Open CSV file for writing
     ofstream file("orbit.csv");
 
@@ -46,6 +47,7 @@ int main() {
     const Vector3& initialPosition = bodies[1].getPosition();
 
     file << 0.0 << "," << initialPosition.getX() << "," << initialPosition.getY() << "," << initialPosition.getZ() << "\n";
+    
 
     // Run the simulation for one year
     for (int i = 0; i < totalSteps; i++) {
@@ -65,9 +67,11 @@ int main() {
 
     // Close the CSV file
     file.close();
+    
 
     // Retrieve Earth's final position
     const Vector3& finalPosition = bodies[1].getPosition();
+    
 
     // Display the results
     cout << "===== Solar System Simulation =====" << endl;
@@ -80,7 +84,7 @@ int main() {
 
     cout << "Orbital data saved to orbit.csv" << endl;
 
-    renderer.run();
+    renderer.run(solarSystem);
 
     return 0;
 }
